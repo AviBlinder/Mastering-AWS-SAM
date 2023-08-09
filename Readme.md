@@ -139,7 +139,7 @@ sam local invoke HelloWorld -e events/event.json
 
 ## Additional Materials
 
-### Lambda function from CRUD DynamoDB + API GW    
+### Lambda function for CRUD DynamoDB actions + API GW    
 (Lambda function from CRUD DynamoDB)[https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html]
 ```js
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
