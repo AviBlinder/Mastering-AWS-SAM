@@ -286,4 +286,8 @@ Resources:
         WriteCapacityUnits: 5
       StreamSpecification:
         StreamViewType: NEW_IMAGE
-```
+``` 
+### Additional Resources:
+(choosing-between-messaging-services-for-serverless-applications)[https://aws.amazon.com/blogs/compute/choosing-between-messaging-services-for-serverless-applications/]
+
+- The above article contains also examples of SAM Template.yaml files for **SQS**, **SNS** and **EventBridge** services and sample **Lambda functions** for using those services.
