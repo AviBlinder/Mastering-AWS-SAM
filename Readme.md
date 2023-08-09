@@ -140,7 +140,9 @@ sam local invoke HelloWorld -e events/event.json
 ## Additional Materials
 
 ### Lambda function for CRUD DynamoDB actions + API GW    
-(Lambda function from CRUD DynamoDB)[https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html]
+
+ (Lambda function from CRUD DynamoDB)[https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html]
+
 ```js
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
@@ -246,3 +248,42 @@ curl -X "DELETE" https://abcdef123.execute-api.us-west-2.amazonaws.com/items/123
 ```
 
 All the above can be automated with the [SAM template under](./http-dynamo-tutorial/template.yaml)
+
+### AWS SAM template for a DynamoDB application based on Lambda Function
+(AWS SAM template for a DynamoDB application)[https://docs.aws.amazon.com/lambda/latest/dg/kinesis-tutorial-spec.html]
+
+Example template.yaml
+
+```js
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  ProcessDynamoDBStream:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler
+      Runtime: runtime
+      Policies: AWSLambdaDynamoDBExecutionRole
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt DynamoDBTable.StreamArn
+            BatchSize: 100
+            StartingPosition: TRIM_HORIZON
+
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: id
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+```
