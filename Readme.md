@@ -139,7 +139,8 @@ sam local invoke HelloWorld -e events/event.json
 
 ## Additional Materials
 
-### (Lambda function from CRUD DynamoDB)[https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html]
+### Lambda function from CRUD DynamoDB + API GW    
+(Lambda function from CRUD DynamoDB)[https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html]
 ```js
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
@@ -245,4 +246,3 @@ curl -X "DELETE" https://abcdef123.execute-api.us-west-2.amazonaws.com/items/123
 ```
 
 All the above can be automated with the [SAM template under](./http-dynamo-tutorial/template.yaml)
-
