@@ -13,7 +13,7 @@ sam --version
 
 <img src="./images/Seven Resource Types.png" width="500" height="300" alt="Slide 2" title="Slide 2">
 
-### Lambda FUnctions
+### Lambda Functions
 <img src="./images/15%20Lamba%20Event%20Services.png" width="500" height="300" alt="Slide 3" title="Slide 3">
 
 <img src="./images/Seven%20Resource%20Types.png" width="500" height="300" alt="Slide 4" title="Slide 4">
@@ -135,3 +135,114 @@ sam local invoke HelloWorld -e events/event.json
 
 ### Debugging locally on VS Code
 <img src="./images/debugging%20locally.png" width="500" height="300" alt="SAM Debugging locally" title="SAM Debugging locally">
+
+
+## Additional Materials
+
+### (Lambda function from CRUD DynamoDB)[https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html]
+```js
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  ScanCommand,
+  PutCommand,
+  GetCommand,
+  DeleteCommand,
+} from "@aws-sdk/lib-dynamodb";
+
+const client = new DynamoDBClient({});
+
+const dynamo = DynamoDBDocumentClient.from(client);
+
+const tableName = "http-crud-tutorial-items";
+
+export const handler = async (event, context) => {
+  let body;
+  let statusCode = 200;
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  try {
+    switch (event.routeKey) {
+      case "DELETE /items/{id}":
+        await dynamo.send(
+          new DeleteCommand({
+            TableName: tableName,
+            Key: {
+              id: event.pathParameters.id,
+            },
+          })
+        );
+        body = `Deleted item ${event.pathParameters.id}`;
+        break;
+      case "GET /items/{id}":
+        body = await dynamo.send(
+          new GetCommand({
+            TableName: tableName,
+            Key: {
+              id: event.pathParameters.id,
+            },
+          })
+        );
+        body = body.Item;
+        break;
+      case "GET /items":
+        body = await dynamo.send(
+          new ScanCommand({ TableName: tableName })
+        );
+        body = body.Items;
+        break;
+      case "PUT /items":
+        let requestJSON = JSON.parse(event.body);
+        await dynamo.send(
+          new PutCommand({
+            TableName: tableName,
+            Item: {
+              id: requestJSON.id,
+              price: requestJSON.price,
+              name: requestJSON.name,
+            },
+          })
+        );
+        body = `Put item ${requestJSON.id}`;
+        break;
+      default:
+        throw new Error(`Unsupported route: "${event.routeKey}"`);
+    }
+  } catch (err) {
+    statusCode = 400;
+    body = err.message;
+  } finally {
+    body = JSON.stringify(body);
+  }
+
+  return {
+    statusCode,
+    body,
+    headers,
+  };
+};
+```
+
+- This lambda function should have 4 routes defined under API GW
+
+```js
+GET /items/{id}
+GET /items
+PUT /items
+DELETE /items/{id}
+```
+
+- Testing the Integration
+
+```sh
+curl -X "PUT" -H "Content-Type: application/json" -d "{\"id\": \"123\", \"price\": 12345, \"name\": \"myitem\"}" https://abcdef123.execute-api.us-west-2.amazonaws.com/items
+
+curl https://abcdef123.execute-api.us-west-2.amazonaws.com/items/123
+
+curl -X "DELETE" https://abcdef123.execute-api.us-west-2.amazonaws.com/items/123
+```
+
+All the above can be automated with the [SAM template under](./http-dynamo-tutorial/template.yaml)
+
