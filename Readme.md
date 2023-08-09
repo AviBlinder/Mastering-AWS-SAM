@@ -68,6 +68,7 @@ Example:
 <img src="./images/SAM%20Init.png" width="500" height="300" alt="SAM Init" title="SAM Init">
 
 As a result, a new project is created:
+
 <img src="./images/SAM%20Init%20-%20Final%20folder%20structure.png" width="500" height="300" alt="SAM Init - Project's Structure" title="SAM Init - Project's Structure">
 
 ### 2. SAM build
@@ -75,19 +76,22 @@ As a result, a new project is created:
 The result will be:
 <img src="./images/SAM build result.png" width="500" height="300" alt="SAM Build Result" title="SAM Build Result">
 
-- Once the build is done and **artifacts** are created:
-  Commands you can use next
-=========================
-[*] Validate SAM template: sam validate
-[*] Invoke Function: sam local invoke
-[*] Test Function in the Cloud: sam sync --stack-name {{stack-name}} --watch
-[*] Deploy: sam deploy --guided
+- Once the build is done and **artifacts** are created there are some commands you can use next:
+* Validate SAM template: **sam validate**
+* Invoke Function: **sam local invoke**
+* Test Function in the Cloud: **sam sync --stack-name {{stack-name}} --watch**
+* Deploy: **sam deploy --guided**
 
 ```sh
 sam local invoke InitStateFunction
 ```
 
-### SAM package 
+### 3. SAM deploy
+- It will upload the artifacts into an S3 bucket and then trigger a cloudFormation build
+<img src="./images/sam%20deploy.png" width="500" height="300" alt="SAM deploy" title="SAM deploy">
+
+### Additional commands:
+#### SAM package 
 - this command can be used for creating a zip file that is uploaded to an S3 bucket. 
 - It can be useful if there is a CI/CD pipeline that is involved in the build and deployment
 proccesses.
@@ -95,11 +99,7 @@ proccesses.
 sam package --s3-bucket ej-apps --output-template-file out.yaml
 ```
 
-### SAM deploy
-- It will upload the artifacts into an S3 bucket and then trigger a cloudFormation build
-<img src="./images/SAM deploy.png" width="500" height="300" alt="SAM deploy" title="SAM deploy">
-
-### SAM local generate-event
+#### SAM local generate-event
 - This command generates a JSON object representing the output from a given service and type
 
 <img src="./images/sam local generate-event.png" width="500" height="300" alt="SAM local generate-event" title="SAM local generate-event">
@@ -109,18 +109,18 @@ sam local generate-event apigateway http-api-proxy
 sam local generate-event s3 put
 ```
 
-### SAM local start-api
+#### SAM local start-api
 - Emulate a REST API call to a Lambda function
 <img src="./images/sam local start-api.png" width="500" height="300" alt="SAM local start-api" title="SAM local start-api">
 
 Useful options
 <img src="./images/sam local start-api - usefull options.png" width="500" height="300" alt="SAM local start-api options" title="SAM local start-api options">
 
-### SAM local start-lambda
+#### SAM local start-lambda
 - this is less helpful, unless you are building a service that calls the Lambda function directly.
 - you can also use the AWS CLI (aws lambda invoke --function-name "" --endpoint-url "" --no-verify-ssl out.txt)
 
-### SAM local invoke lambda
+#### SAM local invoke lambda
 ```sh
 sam local invoke HelloWorld -e events/event.json
 ```
@@ -129,7 +129,7 @@ sam local invoke HelloWorld -e events/event.json
 
 - SAM local is "build" aware so pay attention which template.yaml is being used. The manifest under ./aws-sam/build/template.yaml always takes precedence 
 
-### SAM logs
+#### SAM logs
 - This command can replace the need to continuosly watch CloudWatch logs
 <img src="./images/sam logs.png" width="500" height="300" alt="SAM logs" title="SAM logs">
 
