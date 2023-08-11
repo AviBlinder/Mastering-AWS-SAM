@@ -291,3 +291,6 @@ Resources:
 (choosing-between-messaging-services-for-serverless-applications)[https://aws.amazon.com/blogs/compute/choosing-between-messaging-services-for-serverless-applications/]
 
 - The above article contains also examples of SAM Template.yaml files for **SQS**, **SNS** and **EventBridge** services and sample **Lambda functions** for using those services.
+
+- EventBridge SAM  Lambda-to-Lambda Example:
+https://github.com/jbesw/eventbridge-sam-example
