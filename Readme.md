@@ -292,5 +292,71 @@ Resources:
 
 - The above article contains also examples of SAM Template.yaml files for **SQS**, **SNS** and **EventBridge** services and sample **Lambda functions** for using those services.
 
-- EventBridge SAM  Lambda-to-Lambda Example:
+#### EventBridge SAM  Lambda-to-Lambda Example:
 https://github.com/jbesw/eventbridge-sam-example
+
+- SAM type for Eventbridge: AWS::Events::Rule
+
+./template.yaml:
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Event Bridge Demo
+  
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  orderServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: orderService/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Resource: '*'
+            Action:
+              - events:PutEvents      
+
+  invoiceServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: invoiceService/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+
+  EventRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "EventRule"
+      EventPattern: 
+        source: 
+          - "demo.orders"
+        detail: 
+          state: 
+            - "created"
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: 
+            Fn::GetAtt: 
+              - "invoiceServiceFunction"
+              - "Arn"
+          Id: "invoiceServiceTarget"
+
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "invoiceServiceFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "EventRule"
+          - "Arn"
+```
+
