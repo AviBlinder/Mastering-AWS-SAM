@@ -50,8 +50,41 @@ sam --version
    - The parameters can be stored on the Template itself or on **SSM** or on **Secrets Manager** services
 <img src="./images/Templates with Parameters.png" width="500" height="300" alt="Slide 12" title="Slide 12">
 
+Example:
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: module3-controller
+Parameters:
+  DynamoDBTableName:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: themeParkMainTable
+    Description: Main Theme Park app table
+  IOTendpoint:
+    Type: String
+    Description: Theme Park IoT endpoint
+
+```
 <img src="./images/parameters%20inline.png" width="500" height="300" alt="Slide 13" title="Slide 13">
 
+Example:
+```js
+  ControllerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: controller/
+      Handler: app.handler
+      MemorySize: 128
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          DDB_TABLE_NAME: !Ref DynamoDBTableName
+          IOT_DATA_ENDPOINT: !Ref IOTendpoint
+          IOT_TOPIC: 'theme-park-rides'
+          DB_NAME: '{resolve:ssm:/myApp/DbName:1}'
+          DB_USER: '{resolve:secretsManager:/myApp/DbCreds/SecretString:UserName}'
+          DB_PASS: '{resolve:secretsManager:/myApp/DbCreds/SecretString:UserPass}'
+```
 ## Pseudo Parameters
 <img src="./images/Pseudo Parameters.png" width="500" height="300" alt="Slide 13" title="Slide 13">
 
@@ -73,7 +106,9 @@ As a result, a new project is created:
 
 ### 2. SAM build
 <img src="./images/SAM build.png" width="500" height="300" alt="SAM Build" title="SAM Build">
+
 The result will be:
+
 <img src="./images/SAM build result.png" width="500" height="300" alt="SAM Build Result" title="SAM Build Result">
 
 - Once the build is done and **artifacts** are created there are some commands you can use next:
