@@ -173,7 +173,32 @@ sam local invoke HelloWorld -e events/event.json
 
 
 ## Additional Materials
+### Calling a Lambda function once CloudFormation Deploy is done:
+(example)[https://github.com/stelligent/cloudformation-custom-resources/blob/master/lambda/nodejs/customresource.js] 
 
+```yaml
+  # Lambda function for initializing DDB table content
+  AppConfigurationLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: initDB/
+      Handler: app.handler
+      Runtime: nodejs12.x
+      Timeout: 15
+      MemorySize: 128
+      Environment:
+        Variables:
+          DDBtable: !Ref DDBtable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DDBtable                 
+
+  # Triggers Lambda function after stack creation to add rides to DDB
+  DeploymentCustomResource:
+    Type: Custom::AppConfiguration
+    Properties:
+      ServiceToken: !GetAtt AppConfigurationLambda.Arn
+```
 ### Lambda function for CRUD DynamoDB actions + API GW    
 
  (Lambda function from CRUD DynamoDB)[https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html]
